@@ -65,7 +65,23 @@ function checkUserInGame(req, res, next) {
 
 module.exports = (app) => {
     app.get("/", checkUserNotInGame, (req, res) => {
-        res.render("index", { user: req.user });
+        // Get all games from the database
+        db.query(
+            `SELECT games.id, lobby_name, u1.username AS host_username FROM games
+                LEFT JOIN (SELECT id, username FROM users) u1 ON games.player1_userid = u1.id
+                LEFT JOIN (SELECT id, username FROM users) u2 ON games.player2_userid = u2.id
+            WHERE is_active = TRUE`,
+            (err, result) => {
+                if (err) {
+                    console.log(err);
+                    res.redirect("/err");
+                } else {
+                    // Render the index page with the games
+                    const games = result.map((game) => {});
+                    res.render("index", { games: result, user: req.user });
+                }
+            }
+        );
     });
 
     app.get("/login", checkNotAuthenticated, (req, res) => {
@@ -81,7 +97,7 @@ module.exports = (app) => {
         })
     );
 
-    app.get("/register", checkAuthenticated, (req, res) => {
+    app.get("/register", checkNotAuthenticated, (req, res) => {
         res.render("register");
     });
 

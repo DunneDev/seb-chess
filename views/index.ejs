@@ -1,18 +1,40 @@
 <%- include('partials/header') %>
 
 <div class="row justify-content-center align-items-center h-100">
-  <form action="/game/new" method="POST">
-    <div class="col-6 d-flex flex-column align-items-center">
-
-      <div class="form-group mb-3">
-        <label for="lobbyName" class="form-label">Lobby Name</label>
-        <input type="text" class="form-control" id="lobbyName" name="lobbyName" placeholder="Enter lobby name">
+  <div class="col-6">
+    <form action="/game/new" method="POST">
+      <div class="d-flex flex-column align-items-center">
+        <div class="form-group mb-3">
+          <label for="lobbyName" class="form-label">Lobby Name</label>
+          <input type="text" class="form-control" id="lobbyName" name="lobbyName" placeholder="Enter lobby name">
+        </div>
+        <button type="submit" class="btn btn-primary">Create Game</button>
       </div>
+    </form>
+  </div>
 
-      <button type="submit" class="btn btn-primary">Create Game</button>
+  <div class="col-6">
+    <h2>Lobby List</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Lobby Name</th>
+          <th>Host</th>
+          <th>Join</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for(const game of games){ %>
+        <tr>
+          <td><%= game.lobby_name %></td>
+          <td><%= game.host_username || 'Unknown' %></td>
+          <td><a href="/game/<%= game.id %>/join" class="btn btn-primary">Join</a></td>
+        </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
 
-    </div>
-  </form>
 </div>
 
 <%- include('partials/footer') %>
