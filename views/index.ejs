@@ -1,14 +1,18 @@
 <%- include('partials/header') %>
 
 <div class="row justify-content-center align-items-center h-100">
-  <div class="col-6">
-    <form action="/game/new" method="POST">
-      <div class="form-group">
-        <label for="gameName" class="form-label">Game Name</label>
-        <input type="text" class="form-control" id="gameName" name="gameName" placeholder="Enter game name">
+  <form action="/game/new" method="POST">
+    <div class="col-6 d-flex flex-column align-items-center">
+
+      <div class="form-group mb-3">
+        <label for="lobbyName" class="form-label">Lobby Name</label>
+        <input type="text" class="form-control" id="lobbyName" name="lobbyName" placeholder="Enter lobby name">
       </div>
-    </form>
-  </div>
+
+      <button type="submit" class="btn btn-primary">Create Game</button>
+
+    </div>
+  </form>
 </div>
 
 <%- include('partials/footer') %>

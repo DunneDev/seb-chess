@@ -1,17 +1,74 @@
 const passport = require("passport");
 const db = require("./db");
+const bcrypt = require("bcrypt");
+
+function checkAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
+    }
+
+    res.redirect("/login");
+}
+
+function checkNotAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return res.redirect("/");
+    }
+    next();
+}
+
+function checkUserNotInGame(req, res, next) {
+    checkAuthenticated(req, res, () => {
+        db.query(
+            "SELECT * FROM games WHERE is_active = TRUE AND (player1_userid = ? OR player2_userid = ?)",
+            [req.user.id, req.user.id],
+            (err, result) => {
+                if (err) {
+                    console.log(err);
+                    res.redirect("/");
+                } else {
+                    if (result.length > 0) {
+                        console.log("User is in a game");
+                        res.redirect(`/game`);
+                    } else {
+                        console.log("User is not in a game");
+                        next();
+                    }
+                }
+            }
+        );
+    });
+}
+
+function checkUserInGame(req, res, next) {
+    checkAuthenticated(req, res, () => {
+        db.query(
+            "SELECT * FROM games WHERE is_active = TRUE AND (player1_userid = ? OR player2_userid = ?)",
+            [req.user.id, req.user.id],
+            (err, result) => {
+                if (err) {
+                    console.log(err);
+                    res.redirect("/");
+                } else {
+                    if (result.length > 0) {
+                        console.log("User is in a game");
+                        next();
+                    } else {
+                        console.log("User is not in a game");
+                        res.redirect(`/`);
+                    }
+                }
+            }
+        );
+    });
+}
 
 module.exports = (app) => {
-    app.get("/", (req, res) => {
-        // Check if user is authenticated
-        if (req.isAuthenticated()) {
-            res.render("index", { username: req.user.username });
-        } else {
-            res.redirect("/login");
-        }
+    app.get("/", checkUserNotInGame, (req, res) => {
+        res.render("index", { user: req.user });
     });
 
-    app.get("/login", (req, res) => {
+    app.get("/login", checkNotAuthenticated, (req, res) => {
         res.render("login");
     });
 
@@ -24,7 +81,7 @@ module.exports = (app) => {
         })
     );
 
-    app.get("/register", (req, res) => {
+    app.get("/register", checkAuthenticated, (req, res) => {
         res.render("register");
     });
 
@@ -65,6 +122,47 @@ module.exports = (app) => {
                             );
                         }
                     });
+                }
+            }
+        );
+    });
+
+    app.get("/game", checkUserInGame, (req, res) => {
+        res.send("Game");
+    });
+
+    app.post("/game/new", (req, res) => {
+        const { lobbyName } = req.body;
+        const player1_userid = req.user.id;
+
+        console.log("lobbyName: " + lobbyName);
+        console.log("player1_userid: " + player1_userid);
+
+        // Check if this lobby name already exists in the database
+        db.query(
+            "SELECT * FROM games WHERE lobby_name = ?",
+            [lobbyName],
+            (err, result) => {
+                console.log("db.query result: " + result);
+                if (result.length > 0) {
+                    console.log("Lobby name already exists: " + lobbyName);
+                    res.redirect("/");
+                } else {
+                    // Insert the new game into the database
+                    db.query(
+                        "INSERT INTO games (player1_userid, lobby_name) VALUES (?, ?)",
+                        [player1_userid, lobbyName],
+                        (err, result) => {
+                            console.log("db.query result: " + result);
+                            if (err) {
+                                console.log(err);
+                                res.redirect("/");
+                            } else {
+                                console.log("Game created: " + lobbyName);
+                                res.redirect("/");
+                            }
+                        }
+                    );
                 }
             }
         );
