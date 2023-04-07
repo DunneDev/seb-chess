@@ -1,0 +1,33 @@
+html,
+body,
+main {
+    height: 100%;
+}
+
+#chessboard {
+    background-color: blue;
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.board-row {
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+}
+
+.board-row .square {
+    flex-grow: 1;
+}
+
+.board-row .square,
+.board-row:nth-child(even) .square:nth-child(even) {
+    background-color: #d18b47;
+}
+
+.board-row:nth-child(even) .square,
+.board-row .square:nth-child(even) {
+    background-color: #ffce9e;
+}

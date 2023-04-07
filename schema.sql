@@ -1,0 +1,22 @@
+DROP DATABASE IF EXISTS chess;
+CREATE DATABASE chess;
+
+USE chess;
+
+CREATE TABLE users (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  username VARCHAR(255) NOT NULL,
+  password CHAR(60) NOT NULL
+);
+
+CREATE TABLE games (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  white_userid INT NOT NULL,
+  black_userid INT NOT NULL,
+  start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  is_active BOOLEAN DEFAULT TRUE,
+  FOREIGN KEY (white_userid) REFERENCES users(id),
+  FOREIGN KEY (black_userid) REFERENCES users(id)
+);
+
+
